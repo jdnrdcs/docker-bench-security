@@ -135,4 +135,16 @@ if [ "$docker_process" != "" ]; then
 	fi
 fi
 
+docker_process=`ps f -o cmd --no-headers $dockerd_main`
+if [ "$docker_process" != "" ]; then
+        log_level=`echo $docker_process | awk -F '--iptables=' '{print $2}' | awk -F ' ' '{print $1}'`
+        if [ "$log_level" == "false" ]; then
+                echo "change docker daemon iptables set to true";
+        fi
+fi
+
+is_any_unsecure_repo=`docker info --format 'Insecure Registries: {{.RegistryConfig.InsecureRegistryCIDRs}}' | awk -F 'Insecure Registries: ' '{print $2}'`
+if [ "$is_any_unsecure_repo" != '[127.0.0.0/8]' ]; then
+	echo "There is unsecure repo $is_any_unsecure_repo";
+fi	
 
